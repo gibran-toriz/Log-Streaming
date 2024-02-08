@@ -22,4 +22,4 @@ docker-compose up -b
 
 
 The following diagram illustrates the architecture for the solution:
-![Image Alt text](/Log-Streaming/Kafka.jpg "Optional title"))
+
