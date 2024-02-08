@@ -21,5 +21,5 @@ docker-compose up -b
 ./gradlew bootRun --args='-Dspring.profiles.active=local'
 
 
-The following diagram illustrates the architecture for the solution:
+
 
