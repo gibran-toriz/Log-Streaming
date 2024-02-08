@@ -22,4 +22,4 @@ docker-compose up -b
 
 
 The following diagram illustrates the architecture for the solution:
-![Alt Text](Kafka.jpg?raw=true  "Title")
+![Image Alt text](/Kafka.jpg "Optional title"))
