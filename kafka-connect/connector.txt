@@ -1,0 +1,81 @@
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "elasticsearch-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "request-topic",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "connection.url": "https:/IP_ELASTIC:PORT_ELASTIC",
+    "connection.username": "elastic",
+    "connection.password": "PASS_ELASTIC",
+    "type.name": "kafka-connect",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "topic.index.map": "request-topic:request"
+  }
+}' http://IP:8083/connectors
+
+
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "elasticsearch-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "request-topic",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "connection.url": "https:/IP_ELASTIC:PORT_ELASTIC",
+    "connection.username": "elastic",
+    "connection.password": "PASS_ELASTIC",
+    "type.name": "_doc",
+    "name": "elasticsearch-sink",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"    
+  }
+}' http://IP:8083/connectors
+
+
+
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "spool-dir-source",
+  "config": {
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max": "1",
+    "input.path": "/etc/kafka/in/",
+    "error.path": "/etc/kafka/err/",
+    "finished.path": "/etc/kafka/fin/",
+    "input.file.pattern": ".*\\.csv",
+    "topic": "test",
+    "schema.generation.enabled": "true"
+  }
+}' http://IP:8083/connectors
+
+
+
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "elasticsearch-fluentd-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "1",
+    "topics": "fluentd_events",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "connection.url": "https:/IP_ELASTIC:PORT_ELASTIC",
+    "connection.username": "elastic",
+    "connection.password": "PASS_ELASTIC",
+    "type.name": "_doc",
+    "name": "elasticsearch-fluentd-sink",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"    
+  }
+}' http://IP:8083/connectors
+
+
+curl -X DELETE http://IP:8083/connectors/elasticsearch-sink
+curl http://IP:8083/connectors/elasticsearch-sink/status

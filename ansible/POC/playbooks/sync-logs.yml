@@ -1,0 +1,34 @@
+---
+
+- name: Sync logs files
+  hosts: log_sources,!filebeat
+
+  tasks:
+
+    - name: Create host's home directory (if it does not exist)
+      ansible.builtin.file:
+        path: "/var/logs-sync/{{ inventory_hostname }}"
+        state: directory
+      delegate_to: 127.0.0.1
+
+    - name: Pull log files from target
+      ansible.posix.synchronize:
+        mode: pull
+        src: "{{ item }}"
+        dest: "/var/logs-sync/{{ inventory_hostname }}"
+      loop: "{{ hostvars[inventory_hostname].sync_logs }}"
+      when: hostvars[inventory_hostname].sync_logs is defined
+      register: sync_logs
+
+    - name: Sync result
+      ansible.builtin.debug:
+        var: sync_logs
+        verbosity: 1
+
+    - name: Recursively set insecure permissions
+      ansible.builtin.file:
+        path: /var/logs-sync
+        state: directory
+        recurse: yes
+        mode: "1777"
+      delegate_to: 127.0.0.1

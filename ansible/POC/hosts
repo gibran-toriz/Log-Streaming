@@ -1,0 +1,63 @@
+all:
+  vars:
+    ansible_user: root
+    ansible_ssh_private_key_file: /root/ansible/POC/.ssh/ssh-private
+
+log_collectors:
+  hosts:
+    filebeat:
+      ansible_connection: local
+
+log_sources:
+  hosts:
+    kafka:
+      ansible_host: 10.124.0.6
+      sync_logs: ["/var/log/kafka"]
+
+    apache-httpd:
+      ansible_host: IP_SERVER
+      ansible_user: USER_SERVER
+      ansible_become: yes
+      ansible_become_method: sudo
+      ansible_become_user: root
+      ansible_become_pass: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;root
+          33386333343938383264306130346162646635653334363532616363386333343337393033396438
+          6666653832346162303438333435663366383564313165630a376161623361393162376331653732
+          30333836656538313461343661373261633964636331633935363330303334616334343431346261
+          3838616633313535640a356636653933616133313862393436643334333230373539373461353762
+          3732
+      sync_logs: ["/var/log/httpd"]
+
+    docker-swarm:
+      ansible_host: IP_SERVER
+      ansible_user: USER_SERVER
+      ansible_become: yes
+      ansible_become_method: sudo
+      ansible_become_user: root
+      ansible_become_pass: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;root
+          33386333343938383264306130346162646635653334363532616363386333343337393033396438
+          6666653832346162303438333435663366383564313165630a376161623361393162376331653732
+          30333836656538313461343661373261633964636331633935363330303334616334343431346261
+          3838616633313535640a356636653933616133313862393436643334333230373539373461353762
+          3732
+      sync_logs: ["/var/log/datadog"]
+
+    ibm-was:
+      ansible_host: IP_SERVER
+      ansible_user: USER_SERVER
+      ansible_become: yes
+      ansible_become_method: sudo
+      ansible_become_user: root
+      ansible_become_pass: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;root
+          33386333343938383264306130346162646635653334363532616363386333343337393033396438
+          6666653832346162303438333435663366383564313165630a376161623361393162376331653732
+          30333836656538313461343661373261633964636331633935363330303334616334343431346261
+          3838616633313535640a356636653933616133313862393436643334333230373539373461353762
+          3732
+      sync_logs: ["/websphere/logs/mxcfdibatch"]
+
+    filebeat:
+      ansible_connection: local

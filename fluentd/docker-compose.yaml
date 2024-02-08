@@ -1,0 +1,18 @@
+version: "3"
+services:
+  fluentd:
+    container_name: fluentd
+    user: root
+    image: custom-fluentd:1.0.6
+    build:
+      context: .
+    volumes:
+      - /var/lib/docker/containers:/fluentd/log/containers
+      - ./fluent.conf:/fluentd/etc/fluent.conf
+      - ./configurations/one-click-ssl/:/fluentd/etc/certs/ 
+      - ./logs:/output/
+    logging:
+      driver: "local"
+    ports: 
+      - 24224:24224
+      - 24224:24224/udp

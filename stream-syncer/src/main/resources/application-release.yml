@@ -1,0 +1,33 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKER}
+    consumer-group: ${KAFKA_GROUP_ID}
+    security.protocol: SASL_SSL
+    properties:
+      ssl:
+        keystore.type: PKCS12
+        keystore.location: kafka.keystore.jks
+        keystore.password: "some-password"
+        truststore.type: PKCS12
+        truststore.location: kafka.truststore.jks
+        truststore.password: "some-password"
+  elasticsearch:
+    rest:
+      uris: ${ELASTICSEARCH_REST_URIS}
+      username: ${ELASTICSEARCH_REST_USERNAME}
+      password: ${ELASTICSEARCH_REST_PASSWORD}
+    client.reactive:
+      endpoints: ${ELASTICSEARCH_CLIENT_ENDPOINT}
+      username: ${ELASTICSEARCH_CLIENT_USERNAME}
+      password: ${ELASTICSEARCH_CLIENT_PASSWORD}
+      use-ssl: true
+
+kafka:
+  topics:
+    log_events_topic: ${KAFKA_LOG_EVENTS_TOPIC}
+    group_id: ${KAFKA_GROUP_ID}
+
+logging:
+  level:
+    root: INFO
+    mx.com.interware: INFO

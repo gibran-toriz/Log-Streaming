@@ -1,0 +1,86 @@
+filebeat.inputs:
+- type: filestream
+  id: apache-log
+  enabled: true
+  paths:
+    - /Volumes/Ext/IW/Learn/Kafka/Beat/log/apache.log
+
+# ============================== Filebeat modules ==============================
+
+filebeat.config.modules:
+  # Glob pattern for configuration loading
+  path: ${path.config}/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+  # Period on which files under path should be checked for changes
+  #reload.period: 10s
+
+# ================================== Outputs ===================================
+
+# ---------------------------- Stdout Kafka ----------------------------
+output.kafka:
+  hosts: ["64.23.146.149:9093"]
+  # Kafka topic
+  topic: 'input'
+  # Kafka output settings
+  required_acks: 1
+  # SSL configuration
+  ssl.enabled: true
+  ssl.certificate_authorities: ["/Volumes/Ext/IW/Learn/Kafka/certs/one-click-ssl/ca.crt"]  
+  # Kafka requires SASL authentication over SSL
+  username: "RsE1c6fr6Lc8rpDSS5pgFfcgu/PSd9f65EwxgLxjKjV+W/3HKpjeEBXvNPln"
+  password: "72G7HRmCskldqY2Aa9NQfIqIT/KmgGogFMDz+6mmaFAf5i0Sel3+jaUNSWIu"
+  sasl.mechanism: "SCRAM-SHA-256"
+  # Protocol must be set to "sasl_ssl" to use SASL over SSL
+  protocol: "sasl_ssl"
+
+# ================================= Processors =================================
+processors:
+
+  - add_fields:
+      target: ''
+      fields:
+        system: 'apache'        
+
+  - copy_fields:
+      fields:
+        - from: host.ip
+          to: ip
+        - from: host.hostname
+          to: hostname
+        - from: log.file.path
+          to: source
+        - from: message
+          to: logMessage
+        - from: "@timestamp"
+          to: logTs        
+      fail_on_error: false
+      ignore_missing: true
+  
+  - drop_fields:      
+      fields: ["input", "agent", "ecs", "host", "message", "log", "@metadata", "@timestamp"]
+      ignore_missing: true
+  
+  - script:
+      lang: javascript
+      source: >
+        function process(event) {          
+          var ips = event.Get("ip");          
+          if (ips == null) {            
+            return;
+          }
+          for (var i = 0; i < ips.length; i++) {                        
+            var match = ips[i].match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/);
+            if (match) {                            
+              event.Put("host",  match[0]);
+              event['ip'] = match[0];
+              break;
+            } 
+          }
+        }
+    
+  - drop_fields:      
+      fields: ["ip"]
+      ignore_missing: true

@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  stream-syncer:
+    image: openjdk:17.0.1-jdk-slim
+    container_name: stream-syncer
+    hostname: stream-syncer
+    restart: always
+    volumes:
+      - ./build/libs:/app
+      - ./build/logs:/logs
+    working_dir: /app
+    command: java -Dspring.profiles.active=release -jar application.jar
+    ports:
+      - 8080:8080
+    environment:
+      ELASTICSEARCH_CLIENT_ENDPOINT: poc-invex-logs.es.us-central1.gcp.cloud.es.io:443
+      ELASTICSEARCH_CLIENT_PASSWORD: elasticsearch_password
+      ELASTICSEARCH_CLIENT_USERNAME: poc_invex
+      ELASTICSEARCH_REST_PASSWORD: elasticsearch_password
+      ELASTICSEARCH_REST_URIS: https://poc-invex-logs.es.us-central1.gcp.cloud.es.io
+      ELASTICSEARCH_REST_USERNAME: elk_user
+      KAFKA_BROKER: 64.23.146.149:9092
+      KAFKA_GROUP_ID: group_01
+      KAFKA_LOG_EVENTS_TOPIC: log_store
+      KAFKA_PASSWORD: kafka_password
+      KAFKA_USERNAME: kafka_user

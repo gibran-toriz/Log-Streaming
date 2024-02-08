@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:6.1.1
+    hostname: kafka-connect
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./connect-distributed.properties:/etc/kafka/connect-distributed.properties
+      - ./elasticsearch-sink.properties:/etc/kafka-connect/elasticsearch/elasticsearch-sink.properties
+      - /kafka-certs/one-click-ssl/:/etc/kafka/ssl
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "IP_KAFKA:PORT_SSL_KAFKA"      
+      CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: "connect-group"
+      CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components"
+      # SSL configuration
+      CONNECT_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_SSL_TRUSTSTORE_LOCATION: "/etc/kafka/ssl/kafka.truststore.jks"
+      CONNECT_SSL_TRUSTSTORE_PASSWORD: "TRUSTSTORE_PASSWORD"
+      CONNECT_SASL_MECHANISM: "SCRAM-SHA-256"
+      CONNECT_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.scram.ScramLoginModule required username="USERNAME_KAFKA" password="PASSWORD_KAFKA";'
+
+      CONNECT_PRODUCER_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_PRODUCER_SSL_TRUSTSTORE_LOCATION: "/etc/kafka/ssl/kafka.truststore.jks"
+      CONNECT_PRODUCER_SSL_TRUSTSTORE_PASSWORD: "TRUSTSTORE_PASSWORD"
+      CONNECT_PRODUCER_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.scram.ScramLoginModule required username="USERNAME_KAFKA" password="PASSWORD_KAFKA";'  # Replace with your credentials
+      CONNECT_PRODUCER_SASL_MECHANISM: "SCRAM-SHA-256"
+
+      CONNECT_CONSUMER_SECURITY_PROTOCOL: "SASL_SSL"
+      CONNECT_CONSUMER_SSL_TRUSTSTORE_LOCATION: "/etc/kafka/ssl/kafka.truststore.jks"
+      CONNECT_CONSUMER_SSL_TRUSTSTORE_PASSWORD: "TRUSTSTORE_PASSWORD"
+      CONNECT_CONSUMER_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.scram.ScramLoginModule required username="USERNAME_KAFKA" password="PASSWORD_KAFKA";'  # Replace with your credentials
+      CONNECT_CONSUMER_SASL_MECHANISM: "SCRAM-SHA-256"  
+
+    command:
+      - bash
+      - -c
+      - |
+        echo "Installing Elasticsearch Sink Connector..."
+        confluent-hub install --no-prompt confluentinc/kafka-connect-elasticsearch:latest
+        echo "Installing Syslog Sink Connector..."
+        confluent-hub install --no-prompt confluentinc/kafka-connect-syslog:1.5.6
+        echo "Starting Kafka Connect..."
+        /etc/confluent/docker/run
+    networks:
+      - kafka-net
+
+networks:
+  kafka-net:
+    driver: bridge
